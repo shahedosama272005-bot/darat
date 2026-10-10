@@ -143,7 +143,15 @@ h3{font-size:15px;margin:0}
 <div id="root"></div>
 <div id="modal-root"></div>
 <div id="toast-root"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  const SUPABASE_URL = "https://wvhdsxdrndodzbgtgvmy.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_y2QmmhEJJc5-Wswltfue_A_nIcsqJkH";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
 const icons={
  dashboard:"▦",ideas:"✳",events:"▣",tasks:"☷",meetings:"◷",
  content:"▤",team:"♧",settings:"⚙",add:"+",search:"⌕",
@@ -250,15 +258,70 @@ const initialData={
 ]};
 let language="en",page="dashboard",editing=null;
 let data={};
-function load(){
- for(const key of Object.keys(initialData)){
-  try{
-   const saved=localStorage.getItem("darat-hub-"+key);
-   data[key]=saved?JSON.parse(saved):structuredClone(initialData[key]);
-  }catch(e){data[key]=structuredClone(initialData[key]);}
- }
+
+async function load() {
+  for (const key of Object.keys(initialData)) {
+    if (key === "ideas") {
+      data.ideas = [];
+      continue;
+    }
+
+    try {
+      const saved = localStorage.getItem("darat-hub-" + key);
+      data[key] = saved
+        ? JSON.parse(saved)
+        : structuredClone(initialData[key]);
+    } catch (error) {
+      data[key] = structuredClone(initialData[key]);
+    }
+  }
+
+  try {
+    await refreshSharedIdeas();
+  } catch (error) {
+    console.error("Supabase loading error:", error);
+    showToast("Could not load shared ideas.");
+  }
+
+  render();
+
+  setInterval(async () => {
+    try {
+      await refreshSharedIdeas();
+
+      if (page === "ideas" || page === "dashboard") {
+        render();
+      }
+    } catch (error) {
+      console.error("Supabase refresh error:", error);
+    }
+  }, 10000);
 }
-function persist(key){try{localStorage.setItem("darat-hub-"+key,JSON.stringify(data[key]));}catch(e){}}
+
+async function refreshSharedIdeas() {
+  const { data: ideas, error } = await supabaseClient
+    .from("ideas")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  data.ideas = ideas || [];
+}
+
+function persist(key) {
+  if (key === "ideas") return;
+
+  try {
+    localStorage.setItem(
+      "darat-hub-" + key,
+      JSON.stringify(data[key])
+    );
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 function t(key){return words[language][key]||key;}
 function escapeHtml(value){
  return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -315,18 +378,57 @@ function dataPage(key,query=""){
  <div class="toolbar"><div class="search">⌕ <input placeholder="${t("search")}" value="${escapeHtml(query)}" oninput="filterRecords('${key}',this.value)"></div><span class="count">${records.length}</span></div>
  <div id="record-list">${recordCards(key,records)}</div>`;
 }
-function recordCards(key,records){
- const cfg=configs[key];
- if(!records.length)return `<div class="empty"><div class="empty-icon">${cfg.icon}</div><h3>${t("empty")}</h3><p>${t("emptyText")}</p><br><button class="primary" onclick="openForm('${key}')">＋ ${t("start")}</button></div>`;
- return `<div class="cards">${records.map(r=>{
-  const date=r.event_date||r.due_date||r.publish_date||r.meeting_date;
-  const status=r.status?`<span class="status">${escapeHtml(labelStatus(r.status))}</span>`:"";
-  return `<article class="record"><div class="record-top"><span class="tag">${t(key)}</span>${status}</div>
-  <h3>${escapeHtml(r.title)}</h3><p class="record-description">${escapeHtml(r.description||r.caption||r.notes||t("noDescription"))}</p>
-  <div class="record-meta">${date?`▦ &nbsp; ${dateText(date)}`:""} ${r.priority?` · ${t(r.priority)}`:""} ${r.platform?` · ${escapeHtml(r.platform)}`:""}</div>
-  <div class="record-actions"><button class="secondary" onclick="openForm('${key}','${r.id}')">✎ ${t("edit")}</button><button class="delete" onclick="removeRecord('${key}','${r.id}')">⌫ ${t("delete")}</button></div></article>`;
- }).join("")}</div>`;
+
+function recordCards(key, records) {
+  const cfg = configs[key];
+
+  if (!records.length) {
+    return `<div class="empty">
+      <div class="empty-icon">${cfg.icon}</div>
+      <h3>${t("empty")}</h3>
+      <p>${t("emptyText")}</p><br>
+      <button class="primary" onclick="openForm('${key}')">
+        ＋ ${t("start")}
+      </button>
+    </div>`;
+  }
+
+  return `<div class="cards">${records.map(r => {
+    const date = r.event_date || r.due_date ||
+      r.publish_date || r.meeting_date;
+
+    const status = r.status
+      ? `<span class="status">${escapeHtml(labelStatus(r.status))}</span>`
+      : "";
+
+    const actions = key === "ideas" ? "" : `
+      <div class="record-actions">
+        <button class="secondary" onclick="openForm('${key}','${r.id}')">
+          ✎ ${t("edit")}
+        </button>
+        <button class="delete" onclick="removeRecord('${key}','${r.id}')">
+          ⌫ ${t("delete")}
+        </button>
+      </div>`;
+
+    return `<article class="record">
+      <div class="record-top">
+        <span class="tag">${t(key)}</span>${status}
+      </div>
+      <h3>${escapeHtml(r.title)}</h3>
+      <p class="record-description">${escapeHtml(
+        r.description || r.caption || r.notes || t("noDescription")
+      )}</p>
+      <div class="record-meta">
+        ${date ? `▦ &nbsp; ${dateText(date)}` : ""}
+        ${r.priority ? ` · ${t(r.priority)}` : ""}
+        ${r.platform ? ` · ${escapeHtml(r.platform)}` : ""}
+      </div>
+      ${actions}
+    </article>`;
+  }).join("")}</div>`;
 }
+
 let searches={};
 function filterRecords(key,value){
  searches[key]=value;
@@ -350,18 +452,68 @@ function openForm(key,id=null){
  document.getElementById("modal-root").innerHTML=`<div class="modal-backdrop" onclick="if(event.target===this)closeModal()"><form class="modal" onsubmit="saveRecord(event,'${key}')"><div class="modal-head"><div><p class="eyebrow">${t("workspace")}</p><h2>${id?t("editTitle"):t("newTitle")} · ${t(key)}</h2></div><button class="icon-btn" type="button" onclick="closeModal()">×</button></div>${fields}<div class="modal-actions"><button class="secondary" type="button" onclick="closeModal()">${t("cancel")}</button><button class="primary">${t("save")}</button></div></form></div>`;
 }
 function closeModal(){document.getElementById("modal-root").innerHTML="";}
-function saveRecord(event,key){
- event.preventDefault();
- const cfg=configs[key],form=new FormData(event.target),record={};
- cfg.fields.forEach(f=>record[f.key]=String(form.get(f.key)||"").trim());
- if(editing){
-  const index=data[key].findIndex(r=>r.id===editing);
-  if(index>=0)data[key][index]={...data[key][index],...record};
- }else{
-  data[key].unshift({id:crypto.randomUUID(),...record,created_at:new Date().toISOString()});
- }
- persist(key);closeModal();render();showToast(t("saved"));
+
+async function saveRecord(event, key) {
+  event.preventDefault();
+
+  const cfg = configs[key];
+  const form = new FormData(event.target);
+  const record = {};
+
+  cfg.fields.forEach(f => {
+    record[f.key] = String(form.get(f.key) || "").trim();
+  });
+
+  if (key === "ideas") {
+    if (editing) {
+      showToast("Editing shared ideas is disabled.");
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("ideas")
+      .insert({
+        title: record.title,
+        description: record.description || "",
+        status: record.status || "new"
+      });
+
+    if (error) {
+      console.error("Supabase save error:", error);
+      showToast("Could not save idea. Check connection.");
+      return;
+    }
+
+    closeModal();
+    await refreshSharedIdeas();
+    render();
+    showToast(t("saved"));
+    return;
+  }
+
+  if (editing) {
+    const index = data[key].findIndex(r => r.id === editing);
+
+    if (index >= 0) {
+      data[key][index] = {
+        ...data[key][index],
+        ...record
+      };
+    }
+  } else {
+    data[key].unshift({
+      id: crypto.randomUUID(),
+      ...record,
+      created_at: new Date().toISOString()
+    });
+  }
+
+  persist(key);
+  closeModal();
+  render();
+  showToast(t("saved"));
 }
+
 function removeRecord(key,id){
  if(!confirm(t("confirm")))return;
  data[key]=data[key].filter(r=>r.id!==id);persist(key);render();showToast(t("deleted"));
@@ -390,7 +542,7 @@ function render(){
  let content=page==="dashboard"?dashboard():page==="team"?teamPage():dataPage(page,searches[page]||"");
  document.getElementById("root").innerHTML=shell(content);
 }
-load();render();
+load();
 </script>
 </body>
 </html>
