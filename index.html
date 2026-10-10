@@ -1,0 +1,396 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Darat Hub | Community Workspace</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap');
+
+:root {
+  --bg:#f7f8f6;--surface:#fff;--text:#263c35;--muted:#829089;
+  --green:#245b49;--green2:#347b62;--pale:#e8f1eb;
+  --border:#e8ece8;--orange:#f4e8d9;--red:#b85454;
+  --shadow:0 8px 28px rgba(31,62,49,.045);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans","Tajawal",sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+.sidebar{width:245px;background:#fff;border-right:1px solid var(--border);padding:25px 17px;display:flex;flex-direction:column;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:12px;padding:0 8px 27px}
+.brand-icon{width:43px;height:43px;border-radius:15px;background:var(--green);color:white;display:grid;place-items:center;font-size:23px}
+.brand h2{font-size:17px;margin:0;letter-spacing:1px}
+.brand p{font-size:11px;color:var(--muted);margin:4px 0 0}
+.workspace{background:var(--pale);padding:13px;border-radius:12px;font-size:11px;font-weight:800;letter-spacing:.8px;margin-bottom:27px}
+.nav-label{font-size:10px;font-weight:800;color:#a0aaa4;letter-spacing:1.5px;padding:0 12px;margin-bottom:10px}
+.nav{display:grid;gap:5px}
+.nav button{border:0;background:transparent;text-align:left;padding:12px;border-radius:11px;color:#718078;display:flex;gap:12px;align-items:center;font-size:13px}
+.nav button:hover,.nav button.active{background:var(--pale);color:var(--green);font-weight:700}
+.nav-icon{width:22px;text-align:center;font-size:17px}
+.sidebar-bottom{margin-top:auto;padding-top:25px}
+.profile{display:flex;gap:10px;align-items:center;border-top:1px solid var(--border);padding:18px 5px}
+.avatar{width:38px;height:38px;border-radius:13px;background:#e5ede5;display:grid;place-items:center;color:var(--green);font-weight:800}
+.profile strong{display:block;font-size:12px}
+.profile small{color:var(--muted);font-size:11px}
+.main{flex:1;min-width:0}
+.topbar{height:76px;padding:0 35px;background:rgba(255,255,255,.85);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:15px}
+.breadcrumb{font-size:12px;color:var(--muted)}
+.breadcrumb strong{color:var(--text)}
+.top-actions{display:flex;gap:10px;align-items:center}
+.lang,.icon-btn{background:#fff;border:1px solid var(--border);padding:9px 12px;border-radius:10px;color:var(--text)}
+.content{max-width:1350px;margin:auto;padding:32px 35px}
+.eyebrow{font-size:10px;color:var(--green2);font-weight:800;letter-spacing:1.8px;text-transform:uppercase;margin:0 0 10px}
+h1{font-size:29px;letter-spacing:-1px;margin:0 0 8px}
+h2{font-size:20px;margin:0 0 8px}
+h3{font-size:15px;margin:0}
+.muted{color:var(--muted);font-size:13px;line-height:1.7;margin:0}
+.welcome{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:25px}
+.welcome-icon{width:58px;height:58px;background:var(--pale);border-radius:20px;display:grid;place-items:center;font-size:26px}
+.banner{background:var(--green);color:#fff;padding:27px 30px;border-radius:19px;position:relative;overflow:hidden;margin-bottom:23px;min-height:165px;display:flex;align-items:center;justify-content:space-between}
+.banner h2{font-size:24px;margin-bottom:8px}
+.banner p{color:#d3e3d9;font-size:12px}
+.banner .eyebrow{color:#b9d8c7}
+.banner-art{font-size:66px;opacity:.9;padding-right:28px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:23px}
+.stat{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;text-align:left;color:var(--text)}
+.stat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:19px}
+.stat-icon{height:39px;width:39px;display:grid;place-items:center;background:var(--pale);border-radius:12px;font-size:19px}
+.stat:nth-child(2) .stat-icon{background:#fbefe3}
+.stat:nth-child(3) .stat-icon{background:#e9eefb}
+.stat:nth-child(4) .stat-icon{background:#f5e8f1}
+.stat-name{font-size:12px;color:var(--muted)}
+.stat-number{font-size:30px;font-weight:800;margin-top:6px}
+.stat-hint{font-size:11px;color:var(--green2);margin-top:10px}
+.columns{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+.panel{background:#fff;border:1px solid var(--border);border-radius:16px;padding:22px;min-width:0}
+.panel-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:20px}
+.panel-heading p{margin-top:6px}
+.activity{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid #f0f2f0}
+.activity:last-child{border-bottom:0}
+.activity-icon{width:37px;height:37px;border-radius:12px;background:var(--pale);display:grid;place-items:center;flex-shrink:0}
+.activity strong{display:block;font-size:12px;margin-bottom:5px}
+.activity small{color:var(--muted);font-size:11px}
+.quick{display:flex;align-items:center;gap:12px;width:100%;border:1px solid var(--border);background:#fff;border-radius:12px;padding:13px;margin-bottom:9px;text-align:left;color:var(--text);font-size:12px}
+.quick:hover{border-color:#a5c6b4;background:#fbfdfb}
+.quick span:first-child{background:var(--pale);padding:8px;border-radius:9px}
+.quick .arrow{margin-left:auto;color:var(--muted)}
+.page-heading{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:25px}
+.primary{background:var(--green);color:#fff;border:0;padding:12px 16px;border-radius:11px;font-weight:700;font-size:12px}
+.primary:hover{background:var(--green2)}
+.secondary{background:white;color:var(--text);border:1px solid var(--border);padding:9px 12px;border-radius:9px;font-size:12px}
+.toolbar{display:flex;gap:12px;align-items:center;margin-bottom:18px}
+.search{flex:1;max-width:400px;border:1px solid var(--border);border-radius:11px;padding:11px 13px;background:white;display:flex;gap:9px}
+.search input{border:0;outline:0;width:100%;background:transparent;font-size:12px}
+.count{font-size:12px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.record{background:white;border:1px solid var(--border);border-radius:15px;padding:19px;display:flex;flex-direction:column;min-height:190px}
+.record-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:15px}
+.tag{font-size:10px;font-weight:700;padding:6px 9px;border-radius:8px;background:var(--pale);color:var(--green);max-width:65%;overflow-wrap:anywhere}
+.status{font-size:10px;background:#f2f3f2;color:#6d776f;border-radius:7px;padding:6px 8px}
+.record h3{font-size:15px;line-height:1.5;margin-bottom:8px;overflow-wrap:anywhere}
+.record-description{font-size:12px;line-height:1.7;color:var(--muted);margin:0 0 14px;overflow-wrap:anywhere;white-space:pre-wrap}
+.record-meta{font-size:10px;color:var(--muted);margin-top:auto;padding:10px 0}
+.record-actions{border-top:1px solid var(--border);padding-top:12px;display:flex;gap:8px}
+.record-actions button{flex:1}
+.delete{color:var(--red);background:white;border:1px solid #f1dada;padding:8px;border-radius:9px;font-size:11px}
+.empty{background:white;border:1px dashed #d8e1da;border-radius:16px;padding:60px 20px;text-align:center}
+.empty-icon{font-size:35px;margin-bottom:13px}
+.empty h3{margin-bottom:8px}
+.empty p{font-size:12px;color:var(--muted)}
+.footer{text-align:center;color:#9ba69e;font-size:10px;padding:35px 0 10px}
+.modal-backdrop{position:fixed;inset:0;background:#172c2390;display:grid;place-items:center;padding:18px;z-index:10;overflow:auto}
+.modal{background:white;border-radius:18px;width:min(500px,100%);padding:25px;max-height:92vh;overflow:auto;box-shadow:0 20px 80px #10271b30}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.field{display:grid;gap:7px;margin-bottom:15px}
+.field label{font-size:12px;font-weight:700}
+.field input,.field textarea,.field select{width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;outline:none;background:#fff;color:var(--text);font-size:13px}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--green2)}
+.field textarea{resize:vertical;min-height:90px}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.mobile-menu{display:none}
+.toast{position:fixed;bottom:25px;right:25px;background:var(--green);color:white;padding:13px 18px;border-radius:12px;font-size:12px;z-index:20;box-shadow:var(--shadow)}
+[dir="rtl"]{font-family:"Tajawal","DM Sans",sans-serif}
+[dir="rtl"] .sidebar{border-right:0;border-left:1px solid var(--border)}
+[dir="rtl"] .nav button,[dir="rtl"] .quick,[dir="rtl"] .stat{text-align:right}
+[dir="rtl"] .arrow{margin-left:0;margin-right:auto}
+[dir="rtl"] .toast{right:auto;left:25px}
+[dir="rtl"] .brand h2{letter-spacing:0}
+@media(max-width:1100px){.stats{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){
+ .sidebar{position:fixed;z-index:12;top:0;bottom:0;left:0;transform:translateX(-105%);transition:.2s;box-shadow:var(--shadow)}
+ [dir="rtl"] .sidebar{left:auto;right:0;transform:translateX(105%)}
+ .sidebar.open{transform:translateX(0)}
+ .mobile-menu{display:block}
+ .topbar{height:65px;padding:0 17px}
+ .content{padding:24px 16px}
+ .stats{gap:10px}
+ .stat{padding:14px}
+ .stat-number{font-size:25px}
+ .columns{grid-template-columns:1fr}
+ .cards{grid-template-columns:1fr}
+ .welcome h1{font-size:25px}
+ .banner{padding:22px}
+ .banner-art{font-size:42px;padding:0}
+ .today{display:none}
+ .page-heading{align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+<script>
+const icons={
+ dashboard:"▦",ideas:"✳",events:"▣",tasks:"☷",meetings:"◷",
+ content:"▤",team:"♧",settings:"⚙",add:"+",search:"⌕",
+ close:"×",edit:"✎",delete:"⌫",calendar:"▦"
+};
+const words={
+ en:{
+ dashboard:"Dashboard",ideas:"Ideas",events:"Events",tasks:"Tasks",
+ meetings:"Meetings",content:"Content Studio",team:"Team",settings:"Settings",
+ workspace:"DARAT COMMUNITY",subtitle:"Creative team workspace",
+ welcome:"Good to see you.",overview:"Here's your team's overview.",
+ totalIdeas:"Total ideas",upcomingEvents:"Events",openTasks:"Tasks",
+ contentItems:"Content pieces",recent:"Recent activity",quick:"Quick actions",
+ newIdea:"Add an idea",newEvent:"Create an event",newTask:"Create a task",
+ newMeeting:"Schedule a meeting",newContent:"Plan content",view:"View details",
+ add:"Add new",search:"Search...",title:"Title",description:"Description",
+ status:"Status",date:"Date",priority:"Priority",notes:"Notes",
+ platform:"Platform",caption:"Caption / content notes",save:"Save",
+ cancel:"Cancel",edit:"Edit",delete:"Delete",empty:"Nothing here yet.",
+ emptyText:"Start by adding your first item.",confirm:"Delete this item?",
+ saved:"Saved successfully.",deleted:"Item deleted.",all:"All",
+ name:"Full name",role:"Role",member:"Member",admin:"Administrator",
+ volunteer:"Volunteer",meetingDate:"Meeting date",eventDate:"Event date",
+ dueDate:"Due date",publishDate:"Publish date",new:"New",
+ reviewing:"Reviewing",approved:"Approved",rejected:"Rejected",
+ planned:"Planned",in_progress:"In progress",completed:"Completed",
+ cancelled:"Cancelled",todo:"To do",done:"Done",low:"Low",
+ medium:"Medium",high:"High",idea:"Idea",draft:"Draft",ready:"Ready",
+ published:"Published",searchEmpty:"No matching items.",language:"العربية",
+ menu:"Menu",dateCreated:"Created",noDescription:"No description provided.",
+ intro:"A shared space for people who make good things happen.",
+ hero:"Ideas grow better together.",memberTitle:"Our people",
+ teamText:"The people behind our community work.",
+ upcoming:"Make something meaningful.",priorityText:"Priority",
+ start:"Create your first item",emptyTeam:"Your team will appear here.",
+ editTitle:"Edit item",newTitle:"Create item",meetingNotes:"Meeting notes",
+ publishedDate:"Publishing date",highImpact:"Small team. Real impact."
+ },
+ ar:{
+ dashboard:"لوحة التحكم",ideas:"الأفكار",events:"الفعاليات",tasks:"المهام",
+ meetings:"الاجتماعات",content:"استوديو المحتوى",team:"الفريق",settings:"الإعدادات",
+ workspace:"مجتمع دارَت",subtitle:"مساحة عمل الفريق الإبداعي",
+ welcome:"أهلًا بعودتك.",overview:"هذه نظرة عامة على عمل فريقك.",
+ totalIdeas:"مجموع الأفكار",upcomingEvents:"الفعاليات",openTasks:"المهام",
+ contentItems:"منشورات المحتوى",recent:"آخر النشاطات",quick:"إجراءات سريعة",
+ newIdea:"إضافة فكرة",newEvent:"إنشاء فعالية",newTask:"إنشاء مهمة",
+ newMeeting:"جدولة اجتماع",newContent:"تخطيط محتوى",view:"عرض التفاصيل",
+ add:"إضافة جديد",search:"بحث...",title:"العنوان",description:"الوصف",
+ status:"الحالة",date:"التاريخ",priority:"الأولوية",notes:"ملاحظات",
+ platform:"المنصة",caption:"نص المنشور أو ملاحظات المحتوى",save:"حفظ",
+ cancel:"إلغاء",edit:"تعديل",delete:"حذف",empty:"لا توجد بيانات بعد.",
+ emptyText:"ابدئي بإضافة أول عنصر.",confirm:"هل تريدين حذف هذا العنصر؟",
+ saved:"تم الحفظ بنجاح.",deleted:"تم حذف العنصر.",all:"الكل",
+ name:"الاسم الكامل",role:"الدور",member:"عضو",admin:"مدير",
+ volunteer:"متطوع",meetingDate:"موعد الاجتماع",eventDate:"تاريخ الفعالية",
+ dueDate:"موعد التسليم",publishDate:"تاريخ النشر",new:"جديدة",
+ reviewing:"قيد المراجعة",approved:"مقبولة",rejected:"مرفوضة",
+ planned:"مخططة",in_progress:"قيد التنفيذ",completed:"مكتملة",
+ cancelled:"ملغاة",todo:"للتنفيذ",done:"منجزة",low:"منخفضة",
+ medium:"متوسطة",high:"عالية",idea:"فكرة",draft:"مسودة",ready:"جاهز",
+ published:"منشور",searchEmpty:"لا توجد نتائج مطابقة.",language:"English",
+ menu:"القائمة",dateCreated:"تاريخ الإضافة",noDescription:"لا يوجد وصف.",
+ intro:"مساحة مشتركة للأشخاص الذين يصنعون أثرًا حقيقيًا.",
+ hero:"الأفكار تكبر لما نشتغل مع بعض.",memberTitle:"أعضاء الفريق",
+ teamText:"الأشخاص وراء أعمالنا المجتمعية.",
+ upcoming:"لنصنع شيئًا له معنى.",priorityText:"الأولوية",
+ start:"أنشئي أول عنصر",emptyTeam:"سيظهر فريقك هنا.",
+ editTitle:"تعديل العنصر",newTitle:"إنشاء عنصر",meetingNotes:"ملاحظات الاجتماع",
+ publishedDate:"تاريخ النشر",highImpact:"فريق صغير. أثر حقيقي."
+ }
+};
+const configs={
+ ideas:{table:"ideas",icon:"✳",fields:[
+  {key:"title",required:true},{key:"description",type:"textarea"},
+  {key:"status",type:"select",options:["new","reviewing","approved","rejected"]}]},
+ events:{table:"events",icon:"▣",fields:[
+  {key:"title",required:true},{key:"description",type:"textarea"},
+  {key:"event_date",type:"date",label:"eventDate"},
+  {key:"status",type:"select",options:["planned","in_progress","completed","cancelled"]}]},
+ tasks:{table:"tasks",icon:"☷",fields:[
+  {key:"title",required:true},{key:"description",type:"textarea"},
+  {key:"due_date",type:"date",label:"dueDate"},
+  {key:"priority",type:"select",options:["low","medium","high"]},
+  {key:"status",type:"select",options:["todo","in_progress","done"]}]},
+ meetings:{table:"meetings",icon:"◷",fields:[
+  {key:"title",required:true},{key:"meeting_date",type:"datetime-local",label:"meetingDate"},
+  {key:"notes",type:"textarea",label:"meetingNotes"}]},
+ content:{table:"content",icon:"▤",fields:[
+  {key:"title",required:true},{key:"platform",type:"select",options:["Instagram","Facebook","TikTok","Other"]},
+  {key:"caption",type:"textarea"},{key:"publish_date",type:"date",label:"publishDate"},
+  {key:"status",type:"select",options:["idea","draft","ready","published"]}]}
+};
+const initialData={
+ ideas:[{id:"demo1",title:"Community book exchange",description:"Create a small book-sharing corner at Darat.",status:"reviewing",created_at:new Date().toISOString()}],
+ events:[{id:"demo2",title:"Community gathering",description:"A welcoming afternoon for our local community.",event_date:"",status:"planned",created_at:new Date().toISOString()}],
+ tasks:[{id:"demo3",title:"Prepare volunteer list",description:"Collect volunteer names and responsibilities.",due_date:"",priority:"high",status:"in_progress",created_at:new Date().toISOString()}],
+ meetings:[],content:[],team:[
+ {id:"m1",title:"Team member 1",role:"Volunteer"},
+ {id:"m2",title:"Team member 2",role:"Volunteer"},
+ {id:"m3",title:"Team member 3",role:"Volunteer"},
+ {id:"m4",title:"Team member 4",role:"Volunteer"},
+ {id:"m5",title:"Team member 5",role:"Volunteer"},
+ {id:"m6",title:"Team member 6",role:"Volunteer"}
+]};
+let language="en",page="dashboard",editing=null;
+let data={};
+function load(){
+ for(const key of Object.keys(initialData)){
+  try{
+   const saved=localStorage.getItem("darat-hub-"+key);
+   data[key]=saved?JSON.parse(saved):structuredClone(initialData[key]);
+  }catch(e){data[key]=structuredClone(initialData[key]);}
+ }
+}
+function persist(key){try{localStorage.setItem("darat-hub-"+key,JSON.stringify(data[key]));}catch(e){}}
+function t(key){return words[language][key]||key;}
+function escapeHtml(value){
+ return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function labelStatus(status){return t(status)||status||"—";}
+function dateText(value){
+ if(!value)return "";
+ const d=new Date(value.length===10?value+"T12:00:00":value);
+ return Number.isNaN(d.getTime())?value:d.toLocaleDateString(language==="ar"?"ar-JO":"en-GB",{day:"numeric",month:"short",year:"numeric"});
+}
+function showToast(message){
+ document.getElementById("toast-root").innerHTML=`<div class="toast">${escapeHtml(message)}</div>`;
+ setTimeout(()=>document.getElementById("toast-root").innerHTML="",2400);
+}
+function changePage(key){page=key;render();window.scrollTo(0,0);}
+function toggleLanguage(){language=language==="en"?"ar":"en";render();}
+function navButton(key){
+ return `<button class="${page===key?"active":""}" onclick="changePage('${key}')"><span class="nav-icon">${icons[key]||"•"}</span>${t(key)}</button>`;
+}
+function shell(content){
+ return `<div class="app" dir="${language==="ar"?"rtl":"ltr"}">
+ <aside class="sidebar" id="sidebar">
+ <div class="brand"><div class="brand-icon">♡</div><div><h2>DARAT HUB</h2><p>${t("subtitle")}</p></div></div>
+ <div class="workspace">● &nbsp; ${t("workspace")}</div>
+ <div class="nav-label">WORKSPACE</div>
+ <nav class="nav">${["dashboard","ideas","events","tasks","meetings","content","team"].map(navButton).join("")}</nav>
+ <div class="sidebar-bottom"><div class="profile"><div class="avatar">D</div><div><strong>Darat Team</strong><small>${t("volunteer")}</small></div></div>
+ <button class="secondary" style="width:100%" onclick="toggleLanguage()">◎ &nbsp; ${t("language")}</button></div>
+ </aside>
+ <main class="main"><header class="topbar">
+ <div style="display:flex;align-items:center;gap:12px"><button class="icon-btn mobile-menu" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button><div class="breadcrumb">Darat Hub &nbsp; › &nbsp; <strong>${t(page)}</strong></div></div>
+ <div class="top-actions"><span class="today">${dateText(new Date().toISOString())}</span><button class="lang" onclick="toggleLanguage()">◎ &nbsp; ${t("language")}</button></div>
+ </header><section class="content">${content}<div class="footer">DARAT HUB &nbsp; · &nbsp; ${t("highImpact")}</div></section></main></div>`;
+}
+function dashboard(){
+ const stats=[
+  ["ideas","totalIdeas","✳"],["events","upcomingEvents","▣"],
+  ["tasks","openTasks","☷"],["content","contentItems","▤"]];
+ const recent=Object.entries(configs).flatMap(([key,cfg])=>
+  data[key].map(r=>({...r,module:key,icon:cfg.icon})))
+  .sort((a,b)=>(b.created_at||"").localeCompare(a.created_at||"")).slice(0,5);
+ return `<div class="welcome"><div><p class="eyebrow">${t("workspace")}</p><h1>${t("welcome")}</h1><p class="muted">${t("overview")}</p></div><div class="welcome-icon">✦</div></div>
+ <div class="banner"><div><p class="eyebrow">${t("intro")}</p><h2>${t("hero")}</h2><p>${t("highImpact")}</p></div><div class="banner-art">♡</div></div>
+ <div class="stats">${stats.map(([key,name,icon])=>`<button class="stat" onclick="changePage('${key}')"><div class="stat-top"><span class="stat-icon">${icon}</span><span>↗</span></div><div class="stat-name">${t(name)}</div><div class="stat-number">${data[key].length}</div><div class="stat-hint">${t("view")} →</div></button>`).join("")}</div>
+ <div class="columns"><section class="panel"><div class="panel-heading"><div><h3>${t("recent")}</h3><p class="muted">${t("overview")}</p></div></div>
+ ${recent.length?recent.map(r=>`<div class="activity"><div class="activity-icon">${r.icon}</div><div><strong>${escapeHtml(r.title)}</strong><small>${t(r.module)} · ${dateText(r.created_at)}</small></div></div>`).join(""):`<div class="empty"><div class="empty-icon">✳</div><h3>${t("empty")}</h3></div>`}
+ </section><section class="panel"><div class="panel-heading"><div><h3>${t("quick")}</h3><p class="muted">${t("upcoming")}</p></div></div>
+ ${[["ideas","newIdea"],["events","newEvent"],["tasks","newTask"],["meetings","newMeeting"],["content","newContent"]].map(([key,label])=>`<button class="quick" onclick="openForm('${key}')"><span>${icons[key]}</span>${t(label)}<span class="arrow">↗</span></button>`).join("")}</section></div>`;
+}
+function dataPage(key,query=""){
+ const cfg=configs[key],records=data[key].filter(r=>
+  [r.title,r.description,r.status,r.caption,r.notes,r.platform,r.priority].join(" ").toLowerCase().includes(query.toLowerCase()));
+ return `<div class="page-heading"><div><p class="eyebrow">${t("workspace")}</p><h1>${t(key)}</h1><p class="muted">${t("overview")}</p></div><button class="primary" onclick="openForm('${key}')">＋ ${t("add")}</button></div>
+ <div class="toolbar"><div class="search">⌕ <input placeholder="${t("search")}" value="${escapeHtml(query)}" oninput="filterRecords('${key}',this.value)"></div><span class="count">${records.length}</span></div>
+ <div id="record-list">${recordCards(key,records)}</div>`;
+}
+function recordCards(key,records){
+ const cfg=configs[key];
+ if(!records.length)return `<div class="empty"><div class="empty-icon">${cfg.icon}</div><h3>${t("empty")}</h3><p>${t("emptyText")}</p><br><button class="primary" onclick="openForm('${key}')">＋ ${t("start")}</button></div>`;
+ return `<div class="cards">${records.map(r=>{
+  const date=r.event_date||r.due_date||r.publish_date||r.meeting_date;
+  const status=r.status?`<span class="status">${escapeHtml(labelStatus(r.status))}</span>`:"";
+  return `<article class="record"><div class="record-top"><span class="tag">${t(key)}</span>${status}</div>
+  <h3>${escapeHtml(r.title)}</h3><p class="record-description">${escapeHtml(r.description||r.caption||r.notes||t("noDescription"))}</p>
+  <div class="record-meta">${date?`▦ &nbsp; ${dateText(date)}`:""} ${r.priority?` · ${t(r.priority)}`:""} ${r.platform?` · ${escapeHtml(r.platform)}`:""}</div>
+  <div class="record-actions"><button class="secondary" onclick="openForm('${key}','${r.id}')">✎ ${t("edit")}</button><button class="delete" onclick="removeRecord('${key}','${r.id}')">⌫ ${t("delete")}</button></div></article>`;
+ }).join("")}</div>`;
+}
+let searches={};
+function filterRecords(key,value){
+ searches[key]=value;
+ const list=document.getElementById("record-list");
+ if(list)list.innerHTML=recordCards(key,data[key].filter(r=>
+ [r.title,r.description,r.status,r.caption,r.notes,r.platform,r.priority].join(" ").toLowerCase().includes(value.toLowerCase())));
+}
+function openForm(key,id=null){
+ editing=id;
+ const cfg=configs[key];
+ const record=id?data[key].find(r=>r.id===id):{};
+ const fields=cfg.fields.map(f=>{
+  const label=t(f.label||f.key);
+  const value=record?.[f.key]??(f.options?.[0]||"");
+  let input;
+  if(f.type==="textarea")input=`<textarea name="${f.key}">${escapeHtml(value)}</textarea>`;
+  else if(f.type==="select")input=`<select name="${f.key}">${f.options.map(o=>`<option value="${o}" ${value===o?"selected":""}>${escapeHtml(labelStatus(o))}</option>`).join("")}</select>`;
+  else input=`<input name="${f.key}" type="${f.type||"text"}" value="${escapeHtml(f.type==="datetime-local"&&value?String(value).slice(0,16):value)}" ${f.required?"required":""}>`;
+  return `<div class="field"><label>${escapeHtml(label)}${f.required?" *":""}</label>${input}</div>`;
+ }).join("");
+ document.getElementById("modal-root").innerHTML=`<div class="modal-backdrop" onclick="if(event.target===this)closeModal()"><form class="modal" onsubmit="saveRecord(event,'${key}')"><div class="modal-head"><div><p class="eyebrow">${t("workspace")}</p><h2>${id?t("editTitle"):t("newTitle")} · ${t(key)}</h2></div><button class="icon-btn" type="button" onclick="closeModal()">×</button></div>${fields}<div class="modal-actions"><button class="secondary" type="button" onclick="closeModal()">${t("cancel")}</button><button class="primary">${t("save")}</button></div></form></div>`;
+}
+function closeModal(){document.getElementById("modal-root").innerHTML="";}
+function saveRecord(event,key){
+ event.preventDefault();
+ const cfg=configs[key],form=new FormData(event.target),record={};
+ cfg.fields.forEach(f=>record[f.key]=String(form.get(f.key)||"").trim());
+ if(editing){
+  const index=data[key].findIndex(r=>r.id===editing);
+  if(index>=0)data[key][index]={...data[key][index],...record};
+ }else{
+  data[key].unshift({id:crypto.randomUUID(),...record,created_at:new Date().toISOString()});
+ }
+ persist(key);closeModal();render();showToast(t("saved"));
+}
+function removeRecord(key,id){
+ if(!confirm(t("confirm")))return;
+ data[key]=data[key].filter(r=>r.id!==id);persist(key);render();showToast(t("deleted"));
+}
+function teamPage(){
+ return `<div class="page-heading"><div><p class="eyebrow">${t("workspace")}</p><h1>${t("memberTitle")}</h1><p class="muted">${t("teamText")}</p></div><button class="primary" onclick="openTeamForm()">＋ ${t("add")}</button></div>
+ <div class="cards">${data.team.map(m=>`<article class="record"><div class="welcome-icon" style="margin-bottom:16px">${escapeHtml((m.title||"D").slice(0,1).toUpperCase())}</div><h3>${escapeHtml(m.title)}</h3><p class="record-description">${escapeHtml(m.role||t("volunteer"))}</p><div class="record-actions"><button class="secondary" onclick="openTeamForm('${m.id}')">${t("edit")}</button><button class="delete" onclick="removeTeam('${m.id}')">${t("delete")}</button></div></article>`).join("")}</div>`;
+}
+function openTeamForm(id=null){
+ const m=id?data.team.find(x=>x.id===id):{};
+ document.getElementById("modal-root").innerHTML=`<div class="modal-backdrop" onclick="if(event.target===this)closeModal()"><form class="modal" onsubmit="saveTeam(event,'${id||""}')"><div class="modal-head"><h2>${t("team")} · ${id?t("edit"):t("add")}</h2><button type="button" class="icon-btn" onclick="closeModal()">×</button></div><div class="field"><label>${t("name")}</label><input name="title" required value="${escapeHtml(m?.title||"")}"></div><div class="field"><label>${t("role")}</label><select name="role"><option>Volunteer</option><option>Coordinator</option><option>Content Creator</option><option>Event Organizer</option></select></div><div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">${t("cancel")}</button><button class="primary">${t("save")}</button></div></form></div>`;
+}
+function saveTeam(e,id){
+ e.preventDefault();const f=new FormData(e.target),m={title:String(f.get("title")).trim(),role:String(f.get("role"))};
+ if(id){const i=data.team.findIndex(x=>x.id===id);if(i>=0)data.team[i]={...data.team[i],...m};}
+ else data.team.push({id:crypto.randomUUID(),...m});
+ persist("team");closeModal();render();showToast(t("saved"));
+}
+function removeTeam(id){
+ if(!confirm(t("confirm")))return;
+ data.team=data.team.filter(x=>x.id!==id);persist("team");render();showToast(t("deleted"));
+}
+function render(){
+ document.documentElement.lang=language;
+ document.documentElement.dir=language==="ar"?"rtl":"ltr";
+ let content=page==="dashboard"?dashboard():page==="team"?teamPage():dataPage(page,searches[page]||"");
+ document.getElementById("root").innerHTML=shell(content);
+}
+load();render();
+</script>
+</body>
+</html>
